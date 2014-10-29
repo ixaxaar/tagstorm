@@ -35,6 +35,10 @@ libraryDependencies += "com.datastax.cassandra" % "cassandra-driver-core" % "2.1
 
 libraryDependencies += "com.datastax.cassandra" % "cassandra-driver-mapping" % "2.1.2"
 
+// scala-ized cassandra layer on top of datastax, highly dependent on finagle
+// libraryDependencies += "com.websudos" %% "phantom-dsl" % "1.2.2"
+
+// dont need right now, but...
 // libraryDependencies += "com.typesafe.akka" % "akka-actor_2.11" % "2.3.3"
 
 

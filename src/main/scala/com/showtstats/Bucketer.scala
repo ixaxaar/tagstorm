@@ -60,6 +60,7 @@ class ShowtDeserializer extends StormBolt(streamToFields=Templates.tupleTemplate
       case Seq(json:String) =>
         val showt = json.parseJson.convertTo[Map[String, String]];
 
+        // repeat after me: FUCK YEAH FUNCTIONAL PROGRAMMING
         tupleTemplates.map {
           case (key, fields) =>
             val tup = fields.map(f => showt.getOrElse(f, null));
