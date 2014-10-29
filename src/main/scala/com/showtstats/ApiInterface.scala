@@ -21,15 +21,3 @@ class ShowtInterface extends StormSpout(List("showt")) {
     emit(new String(s));
   }
 }
-
-
-// class FollowInterface extends StormSpout(outputFields = List("follow"), isDistributed=false) {
-//   // intarface here with zeromq for follows
-//   // val context = ZMQ.context(1);
-//   // val puller = context.socket(ZMQ.PULL);
-//   // puller.connect("tcp://127.0.0.1:9998");
-
-//   def nextTuple {
-//     emit(new String(puller.recv(0)));
-//   }
-// }

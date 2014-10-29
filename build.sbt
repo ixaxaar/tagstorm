@@ -25,19 +25,14 @@ libraryDependencies += "org.scalatest" % "scalatest" % "1.4.RC2"
 
 libraryDependencies += "io.spray" % "spray-json_2.11" % "1.3.0"
 
-// libraryDependencies += "com.github.velvia" % "scala-storm_2.9.1" % "0.2.2"
 libraryDependencies += "com.github.velvia" % "scala-storm_2.11" % "0.2.4-SNAPSHOT"
 
 libraryDependencies += "org.apache.storm" % "storm-core" % "0.9.2-incubating" % "compile" exclude("junit", "junit")
 
-// dont forget to export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
-// libraryDependencies += "org.zeromq" % "jzmq" % "3.1.0"
 libraryDependencies += "org.zeromq" % "jeromq" % "0.3.4"
 
 // libraryDependencies += "com.typesafe.akka" % "akka-actor_2.11" % "2.3.3"
 
-// for using storm directly
-// libraryDependencies += "org.apache.storm" % "storm" % "0.9.2-incubating" % "compile"
 
 //////
 // Paths

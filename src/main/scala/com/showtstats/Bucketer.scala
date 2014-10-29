@@ -78,18 +78,3 @@ class ShowtDeserializer extends StormBolt(streamToFields=Templates.tupleTemplate
     t.ack;
   }
 }
-
-
-// // deserialize the follow event, format yet to be decided
-// // class FollowDeserializer extends StormBolt(List("target_id")) {
-// //   def execute(t: Tuple) {
-// //     t.matchSeq {
-// //       case Seq(json:String) =>
-// //         val follow = json.parseJson.convertTo[Map[String, String]];
-
-// //         using anchor t emit (follow("target_id"));
-// //     }
-
-// //     t.ack;
-// //   }
-// // }
