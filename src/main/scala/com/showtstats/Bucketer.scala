@@ -63,9 +63,10 @@ class ShowtDeserializer extends StormBolt(streamToFields=Templates.tupleTemplate
         tupleTemplates.map {
           case (key, fields) =>
             val tup = fields.map(f => showt.getOrElse(f, null));
-            if (!tup.contains(null))
+            if (!tup.contains(null)) {
               // okay, we have the tuple constructed from the showt, emit it!
               using anchor t toStream key emit (tup);
+            }
 
           case _ =>
             println("tupleTemplates has some problem");

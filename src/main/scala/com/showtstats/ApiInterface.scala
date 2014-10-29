@@ -6,19 +6,19 @@ import collection.mutable.{Map, HashMap}
 import org.zeromq.ZMQ
 
 
+object conn {
+  val context = ZMQ.context(1);
+  val puller = context.socket(ZMQ.PULL);
+
+  puller.bind("tcp://127.0.0.1:9999");
+}
+
 // the spouts
 class ShowtInterface extends StormSpout(List("showt")) {
-
-  // var puller:ZMQ.Socket = _;
-  // val context = ZMQ.context(1);
-  // val puller = context.socket(ZMQ.PULL);
-
-  // puller.connect("tcp://127.0.0.1:9999");
-
-  // interface here with zeromq for showts
   def nextTuple {
-    emit("""{"showt": "yes"}""");
-    // emit(new String(puller.recv(0)));
+    val s = conn.puller.recv(0);
+    println(s)
+    emit(new String(s));
   }
 }
 
