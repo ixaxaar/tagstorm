@@ -50,7 +50,7 @@ object Templates {
 
 
 // mega stream splitter, works on showt streams
-class ShowtDeserializer extends StormBolt(Templates.tupleTemplates) {
+class ShowtDeserializer extends StormBolt(streamToFields=Templates.tupleTemplates) {
 
   // the template map for all generated tuple streams
   val tupleTemplates = Templates.tupleTemplates;
@@ -62,10 +62,10 @@ class ShowtDeserializer extends StormBolt(Templates.tupleTemplates) {
 
         tupleTemplates.map {
           case (key, fields) =>
-            val tup = fields.map(f => showt(f));
-
-            // okay, we have the tuple constructed from the showt, emit it!
-            using anchor t toStream key emit (tup);
+            val tup = fields.map(f => showt.getOrElse(f, null));
+            if (!tup.contains(null))
+              // okay, we have the tuple constructed from the showt, emit it!
+              using anchor t toStream key emit (tup);
 
           case _ =>
             println("tupleTemplates has some problem");
@@ -79,16 +79,16 @@ class ShowtDeserializer extends StormBolt(Templates.tupleTemplates) {
 }
 
 
-// deserialize the follow event, format yet to be decided
-// class FollowDeserializer extends StormBolt(List("target_id")) {
-//   def execute(t: Tuple) {
-//     t.matchSeq {
-//       case Seq(json:String) =>
-//         val follow = json.parseJson.convertTo[Map[String, String]];
+// // deserialize the follow event, format yet to be decided
+// // class FollowDeserializer extends StormBolt(List("target_id")) {
+// //   def execute(t: Tuple) {
+// //     t.matchSeq {
+// //       case Seq(json:String) =>
+// //         val follow = json.parseJson.convertTo[Map[String, String]];
 
-//         using anchor t emit (follow("target_id"));
-//     }
+// //         using anchor t emit (follow("target_id"));
+// //     }
 
-//     t.ack;
-//   }
-// }
+// //     t.ack;
+// //   }
+// // }

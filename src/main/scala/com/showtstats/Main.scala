@@ -22,15 +22,15 @@ object Showtstats {
     builder.setSpout("showts", new ShowtInterface, 1);
     // builder.setSpout("follows", new FollowInterface, 1);
 
-    // builder.setBolt("showtsplitter", new ShowtDeserializer, 10)
-    //   .shuffleGrouping("showts");
+    builder.setBolt("showtsplitter", new ShowtDeserializer, 10)
+      .shuffleGrouping("showts");
 
     // builder.setBolt("followssplitter", new FollowDeserializer, 3)
     //   .shuffleGrouping("follows");
 
     val conf = new Config;
     conf.setDebug(true);
-    conf.setMaxTaskParallelism(3);
+    // conf.setMaxTaskParallelism(3);
 
     val cluster = new LocalCluster;
     cluster.submitTopology("showtstats", conf, builder.createTopology);
