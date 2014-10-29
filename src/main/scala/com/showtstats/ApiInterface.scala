@@ -8,7 +8,9 @@ import org.zeromq.ZMQ
 
 object conn {
   val context = ZMQ.context(1);
-  val puller = context.socket(ZMQ.PULL);
+  // val puller = context.socket(ZMQ.PULL);
+  val puller = context.socket(ZMQ.SUB);
+  puller.subscribe("".getBytes());
 
   puller.bind("tcp://127.0.0.1:9999");
 }

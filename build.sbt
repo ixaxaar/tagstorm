@@ -31,6 +31,10 @@ libraryDependencies += "org.apache.storm" % "storm-core" % "0.9.2-incubating" % 
 
 libraryDependencies += "org.zeromq" % "jeromq" % "0.3.4"
 
+libraryDependencies += "com.datastax.cassandra" % "cassandra-driver-core" % "2.1.2"
+
+libraryDependencies += "com.datastax.cassandra" % "cassandra-driver-mapping" % "2.1.2"
+
 // libraryDependencies += "com.typesafe.akka" % "akka-actor_2.11" % "2.3.3"
 
 
