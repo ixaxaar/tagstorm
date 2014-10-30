@@ -21,7 +21,7 @@ object Showtstats {
 
     builder.setSpout("showts", new ShowtInterface, 1);
 
-    builder.setBolt("showtsplitter", new ShowtTagger, 10)
+    builder.setBolt("showttags", new ShowtTagger, 10)
       .shuffleGrouping("showts");
 
     val conf = new Config;

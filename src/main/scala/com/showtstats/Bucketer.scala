@@ -8,9 +8,12 @@ import backtype.storm.tuple.{Fields, Tuple, Values}
 
 import collection.mutable
 import scala.language.postfixOps
+import java.util.Date
 
 import spray.json._
 import DefaultJsonProtocol._
+
+import com.datastax.driver.core.{PreparedStatement}
 
 import showtstats.apiinterface._
 import showtstats.cassandra._
@@ -48,12 +51,7 @@ object Templates {
     "tuple28"   ->  List("target_id", "showt", "country", "state", "city")
   );
 
-  val tagTemplates = Map("tags" -> List("tuple1", "tuple2",
-    "tuple3", "tuple4", "tuple5", "tuple6", "tuple7", "tuple8",
-    "tuple9", "tuple10", "tuple11", "tuple12", "tuple13", "tuple14",
-    "tuple15", "tuple16", "tuple17", "tuple18", "tuple19", "tuple20",
-    "tuple21", "tuple22", "tuple23", "tuple24", "tuple25", "tuple26",
-    "tuple27", "tuple28"))
+  val tagTemplates = Map("tagCount" -> List("tag", "count"));
 }
 
 
@@ -62,18 +60,35 @@ class ShowtTagger extends StormBolt(streamToFields=Templates.tagTemplates) {
 
   // the template map for all generated tuple streams
   val tupleTemplates = Templates.tupleTemplates;
+  var client:CassandraClient = _;
+  var incQuery:String = _;
+  var getQuery:String = _;
+  var incQPrep:PreparedStatement = _;
+  var getQPrep:PreparedStatement = _;
+
+  setup {
+    client = new CassandraClient();
+    client.connect("datacenter1", "daum", 1, "localhost");
+
+    incQuery = "UPDATE milestone_counters SET ctr=ctr+1 WHERE tag=? AND time=?";
+    getQuery = "SELECT ctr from milestone_counters WHERE tag=? AND time=?";
+    incQPrep = client.prepare(incQuery);
+    getQPrep = client.prepare(getQuery);
+  }
 
   def execute(t: Tuple) {
     t.matchSeq {
       case Seq(json:String) =>
         val showt = json.parseJson.convertTo[Map[String, String]];
         var tags = mutable.ListBuffer.empty[String];
+        var timestamp:Long = (showt("timestamp").toFloat).toLong;
+        timestamp = (math.floor(timestamp/86400).toLong)*86400*1000;
+        println(timestamp)
 
         tupleTemplates.map {
           case (key, fields) =>
             val tup = fields.map(f => showt.getOrElse(f, null));
             if (!tup.contains(null) && !tup.contains("")) {
-              tup :+ showt("timestamp");
               tags += tup.mkString(":");
             }
 
@@ -81,8 +96,14 @@ class ShowtTagger extends StormBolt(streamToFields=Templates.tagTemplates) {
             println("tupleTemplates has some problem");
         }
 
-        // emit the tags
-        using anchor t toStream "tags" emit (tags.toList);
+        tags.map { tag =>
+          client.execute(incQPrep, tag, new Date(timestamp));
+          client.execute(incQPrep, tag, new Date(0));
+          val binCount = client.execute(getQPrep, tag, new Date(timestamp));
+          val count = client.execute(getQPrep, tag, new Date(0));
+
+          using anchor t toStream "tags" emit (tag, 10);
+        }
 
       case _ =>
         println("JSON received is not a string!");
