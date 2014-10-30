@@ -25,7 +25,7 @@ object Showtstats {
       .shuffleGrouping("showts");
 
     val conf = new Config;
-    // conf.setDebug(true);
+    conf.setDebug(true);
     conf.setMaxTaskParallelism(100);
 
     val cluster = new LocalCluster;
