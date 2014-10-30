@@ -21,12 +21,12 @@ object Showtstats {
 
     builder.setSpout("showts", new ShowtInterface, 1);
 
-    builder.setBolt("showtsplitter", new ShowtDeserializer, 10)
+    builder.setBolt("showtsplitter", new ShowtTagger, 10)
       .shuffleGrouping("showts");
 
     val conf = new Config;
     conf.setDebug(true);
-    conf.setMaxTaskParallelism(3);
+    conf.setMaxTaskParallelism(100);
 
     val cluster = new LocalCluster;
     cluster.submitTopology("showtstats", conf, builder.createTopology);

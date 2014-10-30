@@ -13,6 +13,7 @@ import spray.json._
 import DefaultJsonProtocol._
 
 import showtstats.apiinterface._
+import showtstats.cassandra._
 
 
 object Templates {
@@ -46,11 +47,18 @@ object Templates {
     "tuple27"   ->  List("target_id", "showt", "country", "state"),
     "tuple28"   ->  List("target_id", "showt", "country", "state", "city")
   );
+
+  val tagTemplates = Map("tags" -> List("tuple1", "tuple2",
+    "tuple3", "tuple4", "tuple5", "tuple6", "tuple7", "tuple8",
+    "tuple9", "tuple10", "tuple11", "tuple12", "tuple13", "tuple14",
+    "tuple15", "tuple16", "tuple17", "tuple18", "tuple19", "tuple20",
+    "tuple21", "tuple22", "tuple23", "tuple24", "tuple25", "tuple26",
+    "tuple27", "tuple28"))
 }
 
 
 // mega stream splitter, works on showt streams
-class ShowtDeserializer extends StormBolt(streamToFields=Templates.tupleTemplates) {
+class ShowtTagger extends StormBolt(streamToFields=Templates.tagTemplates) {
 
   // the template map for all generated tuple streams
   val tupleTemplates = Templates.tupleTemplates;
@@ -59,19 +67,23 @@ class ShowtDeserializer extends StormBolt(streamToFields=Templates.tupleTemplate
     t.matchSeq {
       case Seq(json:String) =>
         val showt = json.parseJson.convertTo[Map[String, String]];
+        var tags = mutable.ListBuffer.empty[String];
 
-        // repeat after me: FUCK YEAH FUNCTIONAL PROGRAMMING
         tupleTemplates.map {
           case (key, fields) =>
             val tup = fields.map(f => showt.getOrElse(f, null));
             if (!tup.contains(null) && !tup.contains("")) {
-              // okay, we have the tuple constructed from the showt, emit it!
-              using anchor t toStream key emit (tup);
+              tup :+ showt("timestamp");
+              tags += tup.mkString(":");
             }
 
           case _ =>
             println("tupleTemplates has some problem");
         }
+
+        // emit the tags
+        using anchor t toStream "tags" emit (tags.toList);
+
       case _ =>
         println("JSON received is not a string!");
     }

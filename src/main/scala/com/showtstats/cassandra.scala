@@ -6,13 +6,13 @@ import com.datastax.driver.core.exceptions._
 // todo: use shapeless to get rid of type erasure warnings
 // import shapeless.Typeable._
 
-class CassandraClient(datacenter:String, keyspace:String, concurrency:Int, nodes:String*) {
+class CassandraClient() {
   var cluster:Cluster = _;
   var metadata:Metadata = _;
   var session:Session = _;
 
 
-  def connect(node: String) = {
+  def connect(datacenter:String, keyspace:String, concurrency:Int, nodes:String*) = {
     // set pooling settings
     var pools:PoolingOptions = new PoolingOptions;
     pools.setMaxSimultaneousRequestsPerConnectionThreshold(HostDistance.LOCAL, concurrency);
