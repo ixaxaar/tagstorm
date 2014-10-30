@@ -80,10 +80,8 @@ class ShowtTagger extends StormBolt(streamToFields=Templates.tagTemplates) {
     t.matchSeq {
       case Seq(json:String) =>
         val showt = json.parseJson.convertTo[Map[String, String]];
+        val timestamp:Long = (math.floor((showt("timestamp").toFloat)/86400)*86400*1000).toLong;
         var tags = mutable.ListBuffer.empty[String];
-        var timestamp:Long = (showt("timestamp").toFloat).toLong;
-        timestamp = (math.floor(timestamp/86400).toLong)*86400*1000;
-        println(timestamp)
 
         tupleTemplates.map {
           case (key, fields) =>
