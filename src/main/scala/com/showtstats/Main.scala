@@ -12,6 +12,7 @@ import scala.language.postfixOps
 import showtstats.apiinterface._
 import showtstats.bucketer._
 import showtstats.milestones._
+import showtstats.achievements._
 
 
 object Showtstats {
@@ -24,6 +25,7 @@ object Showtstats {
 
     builder.setBolt("showttags", new ShowtTagger, 10)
       .shuffleGrouping("showts");
+
     builder.setBolt("milestones1", new Milestones, 2)
       .shuffleGrouping("showttags", "tuple1");
     builder.setBolt("milestones2", new Milestones, 2)
@@ -41,6 +43,25 @@ object Showtstats {
     builder.setBolt("milestones8", new Milestones, 2)
       .shuffleGrouping("showttags", "tuple8");
     builder.setBolt("milestones9", new Milestones, 2)
+      .shuffleGrouping("showttags", "tuple9");
+
+    builder.setBolt("achievement1", new Achievements, 2)
+      .shuffleGrouping("showttags", "tuple1");
+    builder.setBolt("achievement2", new Achievements, 2)
+      .shuffleGrouping("showttags", "tuple2");
+    builder.setBolt("achievement3", new Achievements, 2)
+      .shuffleGrouping("showttags", "tuple3");
+    builder.setBolt("achievement4", new Achievements, 2)
+      .shuffleGrouping("showttags", "tuple4");
+    builder.setBolt("achievement5", new Achievements, 2)
+      .shuffleGrouping("showttags", "tuple5");
+    builder.setBolt("achievement6", new Achievements, 2)
+      .shuffleGrouping("showttags", "tuple6");
+    builder.setBolt("achievement7", new Achievements, 2)
+      .shuffleGrouping("showttags", "tuple7");
+    builder.setBolt("achievement8", new Achievements, 2)
+      .shuffleGrouping("showttags", "tuple8");
+    builder.setBolt("achievement9", new Achievements, 2)
       .shuffleGrouping("showttags", "tuple9");
 
     val conf = new Config;
