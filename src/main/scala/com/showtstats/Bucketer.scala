@@ -51,12 +51,43 @@ object Templates {
     "tuple28"   ->  List("target_id", "showt", "country", "state", "city")
   );
 
-  val tagTemplates = Map("tagCount" -> List("tag", "count"));
+  // all this gymnastics to separate each tuple template member into a different stream
+  // these here define stream names to which the above templates go to
+  val streamTemplates = Map(
+    "tuple1"    ->  List("bucket", "tag", "count"),
+    "tuple2"    ->  List("bucket", "tag", "count"),
+    "tuple3"    ->  List("bucket", "tag", "count"),
+    "tuple4"    ->  List("bucket", "tag", "count"),
+    "tuple5"    ->  List("bucket", "tag", "count"),
+    "tuple6"    ->  List("bucket", "tag", "count"),
+    "tuple7"    ->  List("bucket", "tag", "count"),
+    "tuple8"    ->  List("bucket", "tag", "count"),
+    "tuple9"    ->  List("bucket", "tag", "count"),
+    "tuple10"   ->  List("bucket", "tag", "count"),
+    "tuple11"   ->  List("bucket", "tag", "count"),
+    "tuple12"   ->  List("bucket", "tag", "count"),
+    "tuple13"   ->  List("bucket", "tag", "count"),
+    "tuple14"   ->  List("bucket", "tag", "count"),
+    "tuple15"   ->  List("bucket", "tag", "count"),
+    "tuple16"   ->  List("bucket", "tag", "count"),
+    "tuple17"   ->  List("bucket", "tag", "count"),
+    "tuple18"   ->  List("bucket", "tag", "count"),
+    "tuple19"   ->  List("bucket", "tag", "count"),
+    "tuple20"   ->  List("bucket", "tag", "count"),
+    "tuple21"   ->  List("bucket", "tag", "count"),
+    "tuple22"   ->  List("bucket", "tag", "count"),
+    "tuple23"   ->  List("bucket", "tag", "count"),
+    "tuple24"   ->  List("bucket", "tag", "count"),
+    "tuple25"   ->  List("bucket", "tag", "count"),
+    "tuple26"   ->  List("bucket", "tag", "count"),
+    "tuple27"   ->  List("bucket", "tag", "count"),
+    "tuple28"   ->  List("bucket", "tag", "count")
+  );
 }
 
 
 // mega stream splitter, works on showt streams
-class ShowtTagger extends StormBolt(streamToFields=Templates.tagTemplates) {
+class ShowtTagger extends StormBolt(streamToFields=Templates.streamTemplates) {
 
   // the template map for all generated tuple streams
   val tupleTemplates = Templates.tupleTemplates;
@@ -81,26 +112,25 @@ class ShowtTagger extends StormBolt(streamToFields=Templates.tagTemplates) {
       case Seq(json:String) =>
         val showt = json.parseJson.convertTo[Map[String, String]];
         val timestamp:Long = (math.floor((showt("timestamp").toFloat)/86400)*86400*1000).toLong;
-        var tags = mutable.ListBuffer.empty[String];
 
         tupleTemplates.map {
           case (key, fields) =>
             val tup = fields.map(f => showt.getOrElse(f, null));
+
             if (!tup.contains(null) && !tup.contains("")) {
-              tags += tup.mkString(":");
+              val tag = tup.mkString(":");
+
+              client.execute(incQPrep, tag, new Date(timestamp));
+              client.execute(incQPrep, tag, new Date(0));
+              val binCount = client.execute(getQPrep, tag, new Date(timestamp));
+              val count = client.execute(getQPrep, tag, new Date(0));
+
+              using anchor t toStream key emit (0, tag, count.one.getLong(0));
+              using anchor t toStream key emit (timestamp, tag, binCount.one.getLong(0));
             }
 
           case _ =>
             println("tupleTemplates has some problem");
-        }
-
-        tags.map { tag =>
-          client.execute(incQPrep, tag, new Date(timestamp));
-          client.execute(incQPrep, tag, new Date(0));
-          val binCount = client.execute(getQPrep, tag, new Date(timestamp));
-          val count = client.execute(getQPrep, tag, new Date(0));
-
-          using anchor t toStream "tags" emit (tag, 10);
         }
 
       case _ =>
