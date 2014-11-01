@@ -1,4 +1,4 @@
-package showtstats.achievements
+package stats.achievements
 
 import storm.scala.dsl._
 import backtype.storm.Config

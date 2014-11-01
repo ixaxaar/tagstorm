@@ -1,4 +1,4 @@
-package showtstats.cassandra
+package stats.cassandra
 
 import com.datastax.driver.core._
 import com.datastax.driver.core.exceptions._

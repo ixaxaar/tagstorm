@@ -1,4 +1,4 @@
-package showtstats.milestones
+package stats.milestones
 
 import storm.scala.dsl._
 import backtype.storm.Config

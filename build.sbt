@@ -6,6 +6,7 @@ scalaVersion := "2.11.2"
 
 crossScalaVersions := Seq("2.10.4", "2.11.2")
 
+
 //////
 // Repositories
 //////
@@ -14,7 +15,15 @@ resolvers += "maven-central" at "http://repo1.maven.org/maven2/"
 
 resolvers += "clojars" at "https://clojars.org/repo"
 
+resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases"
+
 resolvers += "clojure-releases" at "http://build.clojure.org/releases"
+
+resolvers += "Bintray sbt plugin releases" at "http://dl.bintray.com/sbt/sbt-plugin-releases/"
+
+resolvers += "Scala-sbt plugin repo" at "http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"
+
+resolvers += "sbt-assembly-resolver-0" at "http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases"
 
 //////
 // Dependencies
@@ -49,7 +58,23 @@ libraryDependencies += "com.datastax.cassandra" % "cassandra-driver-mapping" % "
 // un-managed libraries lie in ./lib
 unmanagedBase := baseDirectory.value / "lib"
 
+
+//////
+// JVM and other configs
+//////
+
+// This is to prevent error [java.lang.OutOfMemoryError: PermGen space]
+// javaOptions += "-XX:MaxPermSize=1g"
+
+// javaOptions += "-Xmx2g"
+
+// scalacOptions += "-Yresolve-term-conflict:package"
+
 // force scalaVersion
 ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) }
 
 fork := true
+
+exportJars := true
+
+

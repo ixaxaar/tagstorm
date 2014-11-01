@@ -1,4 +1,4 @@
-package showtstats.apiinterface
+package stats.apiinterface
 
 import storm.scala.dsl._
 import collection.mutable.{Map, HashMap}
@@ -7,7 +7,7 @@ import org.zeromq.ZMQ
 
 
 // the spouts
-class ShowtInterface extends StormSpout(List("showt")) {
+class ShowtInterface extends StormSpout(List("stuff")) {
 
   var puller:ZMQ.Socket = _;
 

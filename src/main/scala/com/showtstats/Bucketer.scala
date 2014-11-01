@@ -1,4 +1,4 @@
-package showtstats.bucketer
+package stats.bucketer
 
 import storm.scala.dsl._
 import backtype.storm.Config
@@ -15,14 +15,14 @@ import DefaultJsonProtocol._
 
 import com.datastax.driver.core.{PreparedStatement}
 
-import showtstats.apiinterface._
-import showtstats.cassandra._
+import stats.apiinterface._
+import stats.cassandra._
 
 
 object Templates {
   val tupleTemplates = Map(
     "tuple1"    ->  List("target_id"),
-    "tuple2"    ->  List("showt"),
+    "tuple2"    ->  List("stuff"),
     "tuple3"    ->  List("channel"),
     "tuple4"    ->  List("world_region"),
     "tuple5"    ->  List("country"),
@@ -30,25 +30,25 @@ object Templates {
     "tuple7"    ->  List("city"),
     "tuple8"    ->  List("partner_id"),
     "tuple9"    ->  List("telco"),
-    "tuple10"   ->  List("target_id", "showt"),
+    "tuple10"   ->  List("target_id", "stuff"),
     "tuple11"   ->  List("target_id", "channel"),
     "tuple12"   ->  List("target_id", "world_region"),
     "tuple13"   ->  List("target_id", "country"),
     "tuple14"   ->  List("target_id", "country", "state"),
     "tuple15"   ->  List("target_id", "country", "state", "city"),
-    "tuple16"   ->  List("showt", "channel"),
-    "tuple17"   ->  List("showt", "world_region"),
-    "tuple18"   ->  List("showt", "country"),
-    "tuple19"   ->  List("showt", "country", "state"),
-    "tuple20"   ->  List("showt", "country", "state", "city"),
+    "tuple16"   ->  List("stuff", "channel"),
+    "tuple17"   ->  List("stuff", "world_region"),
+    "tuple18"   ->  List("stuff", "country"),
+    "tuple19"   ->  List("stuff", "country", "state"),
+    "tuple20"   ->  List("stuff", "country", "state", "city"),
     "tuple21"   ->  List("channel", "world_region"),
     "tuple22"   ->  List("channel", "country"),
     "tuple23"   ->  List("channel", "state"),
     "tuple24"   ->  List("channel", "country", "state", "city"),
-    "tuple25"   ->  List("target_id", "showt", "world_region"),
-    "tuple26"   ->  List("target_id", "showt", "country"),
-    "tuple27"   ->  List("target_id", "showt", "country", "state"),
-    "tuple28"   ->  List("target_id", "showt", "country", "state", "city")
+    "tuple25"   ->  List("target_id", "stuff", "world_region"),
+    "tuple26"   ->  List("target_id", "stuff", "country"),
+    "tuple27"   ->  List("target_id", "stuff", "country", "state"),
+    "tuple28"   ->  List("target_id", "stuff", "country", "state", "city")
   );
 
   // all this gymnastics to separate each tuple template member into a different stream
@@ -86,7 +86,7 @@ object Templates {
 }
 
 
-// mega stream splitter, works on showt streams
+// mega stream splitter, works on stuff streams
 class ShowtTagger extends StormBolt(streamToFields=Templates.streamTemplates) {
 
   // the template map for all generated tuple streams
@@ -110,12 +110,12 @@ class ShowtTagger extends StormBolt(streamToFields=Templates.streamTemplates) {
   def execute(t: Tuple) {
     t.matchSeq {
       case Seq(json:String) =>
-        val showt = json.parseJson.convertTo[Map[String, String]];
-        val timestamp:Long = (math.floor((showt("timestamp").toFloat)/86400)*86400*1000).toLong;
+        val stuff = json.parseJson.convertTo[Map[String, String]];
+        val timestamp:Long = (math.floor((stuff("timestamp").toFloat)/86400)*86400*1000).toLong;
 
         tupleTemplates.map {
           case (key, fields) =>
-            val tup = fields.map(f => showt.getOrElse(f, null));
+            val tup = fields.map(f => stuff.getOrElse(f, null));
 
             if (!tup.contains(null) && !tup.contains("")) {
               val tag = tup.mkString(":");
